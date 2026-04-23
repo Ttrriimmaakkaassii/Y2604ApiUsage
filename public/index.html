@@ -1,0 +1,25 @@
+﻿<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Y2604 API Usage</title>
+</head>
+<body>
+  <h1>Claude + Kimi Usage</h1>
+  <pre id="out">Loading...</pre>
+
+  <script>
+    async function load() {
+      const claude = await fetch("/api/usage/claude").then(r => r.json());
+      const kimi = await fetch("/api/usage/kimi").then(r => r.json());
+
+      document.getElementById("out").textContent = JSON.stringify({
+        claude,
+        kimi
+      }, null, 2);
+    }
+
+    load();
+  </script>
+</body>
+</html>
