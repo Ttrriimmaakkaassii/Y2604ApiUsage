@@ -35,7 +35,7 @@
           "authorization": `Bearer ${env.MOONSHOT_API_KEY}`
         },
         body: JSON.stringify({
-          model: "kimi-k2-0905-preview",
+          model: "kimi-k2.6",
           messages: [{ role: "user", content: "Reply with OK only." }],
           temperature: 0,
           max_tokens: 20
