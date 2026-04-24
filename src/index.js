@@ -63,7 +63,7 @@
         input_tokens: 0,
         output_tokens: 0,
         total_tokens: 0,
-        raw: { note: "Use /api/test/claude to verify live Claude usage fields." }
+        raw: { note: "Live test usage works. Historical totals need usage API or stored logs." }
       });
     }
 
@@ -78,7 +78,7 @@
         input_tokens: 0,
         output_tokens: 0,
         total_tokens: 0,
-        raw: { note: "Use /api/test/kimi to verify live Kimi usage fields." }
+        raw: { note: "Live test usage works. Historical totals need stored logs or account usage endpoint." }
       });
     }
 
