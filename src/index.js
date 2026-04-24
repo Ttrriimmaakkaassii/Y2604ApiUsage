@@ -6,13 +6,16 @@
       return Response.json({
         provider: "claude",
         ok: true,
+        has_key: Boolean(env.ANTHROPIC_ADMIN_KEY),
         currency: "USD",
         spend: 0,
         requests: 0,
         input_tokens: 0,
         output_tokens: 0,
         total_tokens: 0,
-        raw: { note: "Claude usage adapter goes here" }
+        raw: {
+          note: "Claude key detected. Next step is mapping Anthropic Usage & Cost API response."
+        }
       });
     }
 
@@ -20,13 +23,16 @@
       return Response.json({
         provider: "kimi",
         ok: true,
+        has_key: Boolean(env.MOONSHOT_API_KEY),
         currency: "USD",
         spend: 0,
         requests: 0,
         input_tokens: 0,
         output_tokens: 0,
         total_tokens: 0,
-        raw: { note: "Kimi usage adapter goes here" }
+        raw: {
+          note: "Kimi key detected. Public docs show per-request usage; account-level usage endpoint still needs confirmation."
+        }
       });
     }
 
