@@ -2,6 +2,56 @@
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (url.pathname === "/api/test/claude") {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": env.ANTHROPIC_ADMIN_KEY,
+          "anthropic-version": "2023-06-01"
+        },
+        body: JSON.stringify({
+          model: "claude-3-5-haiku-latest",
+          max_tokens: 20,
+          messages: [{ role: "user", content: "Reply with OK only." }]
+        })
+      });
+
+      const data = await response.json();
+
+      return Response.json({
+        ok: response.ok,
+        status: response.status,
+        usage: data.usage || null,
+        raw: data
+      });
+    }
+
+    if (url.pathname === "/api/test/kimi") {
+      const response = await fetch("https://api.moonshot.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "authorization": `Bearer ${env.MOONSHOT_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "kimi-k2-0905-preview",
+          messages: [{ role: "user", content: "Reply with OK only." }],
+          temperature: 0,
+          max_tokens: 20
+        })
+      });
+
+      const data = await response.json();
+
+      return Response.json({
+        ok: response.ok,
+        status: response.status,
+        usage: data.usage || null,
+        raw: data
+      });
+    }
+
     if (url.pathname === "/api/usage/claude") {
       return Response.json({
         provider: "claude",
@@ -13,9 +63,7 @@
         input_tokens: 0,
         output_tokens: 0,
         total_tokens: 0,
-        raw: {
-          note: "Claude key detected. Next step is mapping Anthropic Usage & Cost API response."
-        }
+        raw: { note: "Use /api/test/claude to verify live Claude usage fields." }
       });
     }
 
@@ -30,9 +78,7 @@
         input_tokens: 0,
         output_tokens: 0,
         total_tokens: 0,
-        raw: {
-          note: "Kimi key detected. Public docs show per-request usage; account-level usage endpoint still needs confirmation."
-        }
+        raw: { note: "Use /api/test/kimi to verify live Kimi usage fields." }
       });
     }
 
