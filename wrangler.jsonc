@@ -1,8 +1,15 @@
-﻿{
-  "name": "y2604apiusage",
-  "main": "src/index.js",
-  "compatibility_date": "2026-04-23",
-  "assets": {
-    "directory": "./public"
-  }
+{
+	"name": "y2604apiusage",
+	"main": "src/index.js",
+	"compatibility_date": "2026-04-23",
+	"assets": {
+		"directory": "./public"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "y2604apiusage-db",
+			"database_id": "c8af39da-76e9-45ed-afd0-892fd8231206"
+		}
+	]
 }

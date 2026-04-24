@@ -5,168 +5,155 @@
   <title>Y2604 API Usage</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      margin: 0;
-      font-family: system-ui, Segoe UI, Arial;
-      background: radial-gradient(circle at top, #1f2d5a, #070b16);
-      color: #eef2ff;
-    }
-    .wrap { max-width: 1100px; margin: auto; padding: 32px; }
-    h1 { font-size: 42px; margin-bottom: 6px; }
-    .muted { color: #aab4d6; }
-    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; margin-top: 24px; }
-    .card {
-      grid-column: span 12;
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 22px;
-      padding: 22px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.25);
-    }
-    @media(min-width: 800px) {
-      .span4 { grid-column: span 4; }
-      .span6 { grid-column: span 6; }
-      .span12 { grid-column: span 12; }
-    }
-    .stat { font-size: 34px; font-weight: 800; margin-top: 8px; }
-    .ok { color: #7ee787; }
-    .bad { color: #ff7b72; }
-    .bar {
-      height: 18px;
-      background: rgba(255,255,255,.08);
-      border-radius: 999px;
-      overflow: hidden;
-      margin: 10px 0 18px;
-    }
-    .fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #78a6ff, #85f0cb);
-      transition: width .4s ease;
-    }
-    button {
-      background: #8fb3ff;
-      border: 0;
-      border-radius: 14px;
-      padding: 12px 16px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-    pre {
-      background: #080d1c;
-      border-radius: 18px;
-      padding: 18px;
-      overflow: auto;
-      color: #dbe5ff;
-    }
+    body { margin:0; font-family:system-ui,Segoe UI,Arial; background:radial-gradient(circle at top,#1f2d5a,#070b16); color:#eef2ff; }
+    .wrap { max-width:1150px; margin:auto; padding:32px; }
+    h1 { font-size:42px; margin:0 0 6px; }
+    .muted { color:#aab4d6; }
+    .toolbar { display:flex; gap:12px; flex-wrap:wrap; margin:22px 0; }
+    button, select { border:0; border-radius:14px; padding:12px 16px; font-weight:800; }
+    button { background:#8fb3ff; color:#071022; cursor:pointer; }
+    select { background:#151d38; color:#eef2ff; border:1px solid rgba(255,255,255,.14); }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:18px; }
+    .card { grid-column:span 12; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:22px; padding:22px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+    @media(min-width:800px){ .span3{grid-column:span 3}.span4{grid-column:span 4}.span6{grid-column:span 6}.span12{grid-column:span 12} }
+    .stat { font-size:34px; font-weight:900; margin-top:8px; }
+    .ok { color:#7ee787; } .bad{color:#ff7b72;}
+    .bar { height:18px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; margin:10px 0 18px; }
+    .fill { height:100%; width:0%; background:linear-gradient(90deg,#78a6ff,#85f0cb); transition:width .4s ease; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td { text-align:left; padding:12px; border-bottom:1px solid rgba(255,255,255,.1); }
+    th { color:#aab4d6; }
+    pre { background:#080d1c; border-radius:18px; padding:18px; overflow:auto; color:#dbe5ff; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Claude + Kimi Usage</h1>
-    <div class="muted">Live provider checks on api.rpts.me</div>
-    <button onclick="load()">Refresh Usage</button>
+    <div class="muted">Logged usage, estimated dollars, and live provider checks on api.rpts.me</div>
+
+    <div class="toolbar">
+      <select id="range" onchange="loadUsage()">
+        <option value="24h">Past 24 hours</option>
+        <option value="7d">Past 7 days</option>
+        <option value="month">This month</option>
+        <option value="all">All logged</option>
+      </select>
+      <button onclick="runTests()">Run Live Test + Log</button>
+      <button onclick="loadUsage()">Refresh Dashboard</button>
+    </div>
 
     <div class="grid">
-      <div class="card span4">
-        <div class="muted">Claude status</div>
-        <div id="claudeStatus" class="stat">Loading...</div>
+      <div class="card span3">
+        <div class="muted">Requests</div>
+        <div id="requests" class="stat">0</div>
       </div>
 
-      <div class="card span4">
-        <div class="muted">Kimi status</div>
-        <div id="kimiStatus" class="stat">Loading...</div>
+      <div class="card span3">
+        <div class="muted">Tokens</div>
+        <div id="tokens" class="stat">0</div>
       </div>
 
-      <div class="card span4">
-        <div class="muted">Combined tokens</div>
-        <div id="totalTokens" class="stat">0</div>
+      <div class="card span3">
+        <div class="muted">Estimated cost</div>
+        <div id="cost" class="stat">$0.0000</div>
       </div>
 
-      <div class="card span6">
-        <h2>Claude tokens</h2>
-        <div class="muted">Input</div>
-        <div class="bar"><div id="claudeInputBar" class="fill"></div></div>
-        <div class="muted">Output</div>
-        <div class="bar"><div id="claudeOutputBar" class="fill"></div></div>
-        <pre id="claudeRaw">Loading...</pre>
+      <div class="card span3">
+        <div class="muted">Range</div>
+        <div id="rangeLabel" class="stat">24h</div>
       </div>
 
       <div class="card span6">
-        <h2>Kimi tokens</h2>
-        <div class="muted">Prompt</div>
-        <div class="bar"><div id="kimiInputBar" class="fill"></div></div>
-        <div class="muted">Completion</div>
-        <div class="bar"><div id="kimiOutputBar" class="fill"></div></div>
-        <pre id="kimiRaw">Loading...</pre>
+        <h2>Claude</h2>
+        <div class="muted">Tokens share</div>
+        <div class="bar"><div id="claudeBar" class="fill"></div></div>
+        <pre id="claudeBox">Loading...</pre>
+      </div>
+
+      <div class="card span6">
+        <h2>Kimi</h2>
+        <div class="muted">Tokens share</div>
+        <div class="bar"><div id="kimiBar" class="fill"></div></div>
+        <pre id="kimiBox">Loading...</pre>
       </div>
 
       <div class="card span12">
-        <h2>Notes</h2>
-        <p class="muted">
-          This dashboard currently shows live test-call usage. Historical totals need request logging through this Worker or a provider account-level usage API.
-        </p>
+        <h2>Latest logged calls</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Provider</th>
+              <th>Model</th>
+              <th>Input</th>
+              <th>Output</th>
+              <th>Total</th>
+              <th>Estimated $</th>
+            </tr>
+          </thead>
+          <tbody id="latestRows"></tbody>
+        </table>
       </div>
     </div>
   </div>
 
   <script>
     const fmt = n => new Intl.NumberFormat().format(Number(n || 0));
+    const money = n => "$" + Number(n || 0).toFixed(6);
 
     function setBar(id, value, max) {
-      const pct = max > 0 ? Math.max(4, Math.round((value / max) * 100)) : 0;
-      document.getElementById(id).style.width = pct + "%";
+      document.getElementById(id).style.width = max > 0 ? Math.max(4, Math.round(value / max * 100)) + "%" : "0%";
     }
 
-    async function getJSON(path) {
-      const res = await fetch(path);
-      return res.json();
-    }
-
-    async function load() {
-      document.getElementById("claudeStatus").textContent = "Loading...";
-      document.getElementById("kimiStatus").textContent = "Loading...";
-
-      const [claude, kimi] = await Promise.all([
-        getJSON("/api/test/claude"),
-        getJSON("/api/test/kimi")
+    async function runTests() {
+      await Promise.all([
+        fetch("/api/test/claude").then(r => r.json()),
+        fetch("/api/test/kimi").then(r => r.json())
       ]);
-
-      const cUsage = claude.usage || {};
-      const kUsage = kimi.usage || {};
-
-      const cInput = cUsage.input_tokens || 0;
-      const cOutput = cUsage.output_tokens || 0;
-      const kInput = kUsage.prompt_tokens || 0;
-      const kOutput = kUsage.completion_tokens || 0;
-
-      const max = Math.max(cInput, cOutput, kInput, kOutput, 1);
-      const total = cInput + cOutput + kInput + kOutput;
-
-      document.getElementById("claudeStatus").innerHTML = claude.ok ? "<span class='ok'>Online</span>" : "<span class='bad'>Error</span>";
-      document.getElementById("kimiStatus").innerHTML = kimi.ok ? "<span class='ok'>Online</span>" : "<span class='bad'>Error</span>";
-      document.getElementById("totalTokens").textContent = fmt(total);
-
-      setBar("claudeInputBar", cInput, max);
-      setBar("claudeOutputBar", cOutput, max);
-      setBar("kimiInputBar", kInput, max);
-      setBar("kimiOutputBar", kOutput, max);
-
-      document.getElementById("claudeRaw").textContent = JSON.stringify({
-        input_tokens: cInput,
-        output_tokens: cOutput,
-        total_tokens: cInput + cOutput
-      }, null, 2);
-
-      document.getElementById("kimiRaw").textContent = JSON.stringify({
-        prompt_tokens: kInput,
-        completion_tokens: kOutput,
-        total_tokens: kInput + kOutput
-      }, null, 2);
+      await loadUsage();
     }
 
-    load();
+    async function loadUsage() {
+      const range = document.getElementById("range").value;
+      const data = await fetch("/api/usage?range=" + encodeURIComponent(range)).then(r => r.json());
+
+      const summary = data.summary || [];
+      const claude = summary.find(x => x.provider === "claude") || {};
+      const kimi = summary.find(x => x.provider === "kimi") || {};
+
+      const requests = summary.reduce((s,x)=>s+Number(x.requests||0),0);
+      const tokens = summary.reduce((s,x)=>s+Number(x.total_tokens||0),0);
+      const cost = summary.reduce((s,x)=>s+Number(x.estimated_cost_usd||0),0);
+
+      document.getElementById("requests").textContent = fmt(requests);
+      document.getElementById("tokens").textContent = fmt(tokens);
+      document.getElementById("cost").textContent = money(cost);
+      document.getElementById("rangeLabel").textContent = range;
+
+      const cTokens = Number(claude.total_tokens || 0);
+      const kTokens = Number(kimi.total_tokens || 0);
+      const max = Math.max(cTokens, kTokens, 1);
+
+      setBar("claudeBar", cTokens, max);
+      setBar("kimiBar", kTokens, max);
+
+      document.getElementById("claudeBox").textContent = JSON.stringify(claude, null, 2);
+      document.getElementById("kimiBox").textContent = JSON.stringify(kimi, null, 2);
+
+      document.getElementById("latestRows").innerHTML = (data.latest || []).map(r => `
+        <tr>
+          <td>${new Date(r.created_at).toLocaleString()}</td>
+          <td>${r.provider}</td>
+          <td>${r.model}</td>
+          <td>${fmt(r.input_tokens)}</td>
+          <td>${fmt(r.output_tokens)}</td>
+          <td>${fmt(r.total_tokens)}</td>
+          <td>${money(r.estimated_cost_usd)}</td>
+        </tr>
+      `).join("");
+    }
+
+    loadUsage();
   </script>
 </body>
 </html>
