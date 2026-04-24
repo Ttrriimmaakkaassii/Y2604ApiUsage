@@ -37,7 +37,7 @@
         body: JSON.stringify({
           model: "kimi-k2.6",
           messages: [{ role: "user", content: "Reply with OK only." }],
-          temperature: 0,
+          temperature: 1,
           max_tokens: 20
         })
       });
